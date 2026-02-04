@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>AI Cover Letter Generator</title>
@@ -25,6 +26,18 @@
         <label>Candidate Name</label>
         <input id="name" type="text" placeholder="Enter your name" />
 
+        <label>Email Address</label>
+        <input id="email" type="email" placeholder="you@example.com" />
+
+        <label>Phone Number</label>
+        <input id="phone" type="tel" placeholder="+1 234 567 8900" />
+
+        <label>City, State</label>
+        <input id="city" type="text" placeholder="New York, NY" />
+
+        <label>Hiring Manager Name (Optional)</label>
+        <input id="hiringManager" type="text" placeholder="e.g. Jane Doe" />
+
         <label>Job Role</label>
         <input id="role" type="text" placeholder="Frontend Developer" />
 
@@ -32,11 +45,7 @@
         <input id="company" type="text" placeholder="Company name" />
 
         <label>Key Skills</label>
-        <textarea
-          id="skills"
-          rows="4"
-          placeholder="HTML, CSS, JavaScript, APIs"
-        ></textarea>
+        <textarea id="skills" rows="4" placeholder="HTML, CSS, JavaScript, APIs"></textarea>
 
         <button id="generateBtn" class="primary-btn">
           Generate Cover Letter
@@ -62,4 +71,5 @@
 
   <script src="script.js"></script>
 </body>
+
 </html>

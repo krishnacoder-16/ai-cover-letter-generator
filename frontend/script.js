@@ -2,18 +2,26 @@ const nameInput = document.getElementById("name");
 const roleInput = document.getElementById("role");
 const companyInput = document.getElementById("company");
 const skillsInput = document.getElementById("skills");
+const emailInput = document.getElementById("email");
+const phoneInput = document.getElementById("phone");
+const cityInput = document.getElementById("city");
+const hiringManagerInput = document.getElementById("hiringManager");
 
 const generateBtn = document.getElementById("generateBtn");
 const outputBox = document.getElementById("output");
 const copyBtn = document.getElementById("copyBtn");
 
-generateBtn.addEventListener("click", () => {
+generateBtn.addEventListener("click", async () => {
   const name = nameInput.value.trim();
   const role = roleInput.value.trim();
   const company = companyInput.value.trim();
   const skills = skillsInput.value.trim();
+  const email = emailInput.value.trim();
+  const phone = phoneInput.value.trim();
+  const city = cityInput.value.trim();
+  const hiringManager = hiringManagerInput.value.trim();
 
-  if (!name || !role || !company || !skills) {
+  if (!name || !role || !company || !skills || !email || !phone || !city) {
     alert("Please fill in all fields");
     return;
   }
@@ -21,47 +29,51 @@ generateBtn.addEventListener("click", () => {
   // Loading state
   generateBtn.disabled = true;
   generateBtn.textContent = "Generating...";
-
   outputBox.innerHTML = "<p>Generating your cover letter...</p>";
   copyBtn.classList.add("hidden");
 
-  // Fake AI delay
-  setTimeout(() => {
-    const letter = generateMockCoverLetter(
-      name,
-      role,
-      company,
-      skills
-    );
+  try {
+    const response = await fetch("http://localhost:5000/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name,
+        role,
+        company,
+        company,
+        skills,
+        email,
+        phone,
+        city,
+        hiringManager,
+      }),
+    });
 
-    outputBox.textContent = letter;
+    const data = await response.json();
 
+    if (!response.ok) {
+      throw new Error(data.error || "Something went wrong");
+    }
+
+    outputBox.textContent = data.letter;
+    copyBtn.classList.remove("hidden");
+  } catch (error) {
+    outputBox.innerHTML =
+      "<p>❌ Failed to generate cover letter. Please try again.</p>";
+  } finally {
     generateBtn.disabled = false;
     generateBtn.textContent = "Generate Cover Letter";
-    copyBtn.classList.remove("hidden");
-  }, 1500);
+  }
 });
-function generateMockCoverLetter(name, role, company, skills) {
-  return `Dear Hiring Manager at ${company},
 
-I am writing to express my interest in the ${role} position at ${company}. My name is ${name}, and I am excited about the opportunity to contribute to your team.
-
-I have hands-on experience with ${skills}, and I enjoy building clean, efficient, and user-focused solutions. I am constantly learning and improving my skills to stay aligned with industry standards.
-
-I would welcome the opportunity to further discuss how my skills and enthusiasm can add value to ${company}. Thank you for considering my application.
-
-Sincerely,  
-${name}`;
-}
+// Copy to clipboard
 copyBtn.addEventListener("click", () => {
-  const textToCopy = outputBox.innerText;
-
-  navigator.clipboard.writeText(textToCopy).then(() => {
+  navigator.clipboard.writeText(outputBox.innerText).then(() => {
     copyBtn.textContent = "Copied ✔️";
-
     setTimeout(() => {
       copyBtn.textContent = "Copy to Clipboard";
     }, 1500);
   });
 });
-
