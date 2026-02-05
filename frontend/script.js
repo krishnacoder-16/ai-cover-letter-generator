@@ -26,18 +26,18 @@ generateBtn.addEventListener("click", async () => {
   const hasResume = resumeInput.files.length > 0;
 
 
-// Case 1: Resume uploaded → allow generation
-if (hasResume) {
-  // no validation needed
-}
-// Case 2: Resume NOT uploaded → require form fields
-else {
-  if (!name || !email || !phone || !city || !role || !company || !skills) {
-    alert("Please fill the form or upload a resume");
-    return;
+// Validation Logic
+  if (hasResume) {
+    if (!role || !company) {
+      alert("Please provide the Target Role and Company Name.");
+      return;
+    }
+  } else {
+    if (!name || !email || !phone || !city || !role || !company || !skills) {
+      alert("Please check all fields. Skills are required if no resume is uploaded.");
+      return;
+    }
   }
-}
-
 
 
   // Loading state

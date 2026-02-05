@@ -38,25 +38,42 @@ app.post("/generate", upload.single("resume"), async (req, res) => {
     console.log("Request Body:", req.body);
 
     const prompt = `
-Write a professional cover letter for the candidate below.
+    DETAILS FROM CANDIDATE INPUT:
+    Candidate Name: ${name || "Not Provided"}
+    Target Role: ${role}
+    Target Company: ${company}
+    Candidate Skills: ${skills || "Not Provided"}
+    Candidate Phone: ${phone || "Not Provided"}
+    Candidate Email: ${email || "Not Provided"}
+    Candidate City: ${city || "Not Provided"}
+    RESUME CONTENT:
 
-Candidate Name: {name}
-Job Role: {role}
-Company Name: {company}
-Key Skills: {skills}
+    ${resumeText}
 
-Guidelines:
-- Use a professional and confident tone
-- Write 3 short paragraphs
-- Mention relevant skills naturally
-- Do NOT exaggerate experience
-- Do NOT use bullet points
-- Keep the letter concise and well structured
-- End with a polite closing
+    INSTRUCTIONS:
+    Write a professional cover letter for the candidate applying for the role of ${role} at ${company}.
+    
+    CRITICAL DATA EXTRACTION:
+    If any of the "Candidate Name", "Phone", "Email", or "City" are marked as "Not Provided" above, **EXTRACT** them from the RESUME CONTENT.
+    
+    IMPORTANT FORMATTING RULES:
+    1.  The output must start with this EXACT header format:
+    [Candidate Name]
+    [Candidate Phone] | [Candidate Email]
+    [Candidate City]
 
-The output should look like a real cover letter, not AI-generated text.
+    ${date}
 
-`;
+    ${managerName}
+    ${role}
+    ${company}
+
+    2.  After the header, write "Dear ${managerName},"
+    3.  Write 3 concise paragraphs highlighting skills and fit for the role.
+      - Reference specific experience from the Resume.
+    4.  End with "Sincerely,\n[Candidate Name]".
+    5.  **Replace [Brackets] with actual extracted data.** Do NOT leave them as placeholders.
+    `;
 
     console.log("Generated Prompt:", prompt);
 
