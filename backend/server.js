@@ -2,16 +2,21 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import multer from "multer";
+import { parseResume } from "./utils/parseResume.js";
+
 
 dotenv.config({ path: "../.env" });
-console.log("Loaded API Key:", process.env.GEMINI_API_KEY?.slice(0, 6));
-
 
 const app = express();
 const PORT = 5000;
 
 app.use(cors());
 app.use(express.json());
+const upload = multer({
+  storage: multer.memoryStorage(),
+});
+
 
 // Gemini setup
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -19,33 +24,41 @@ const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 
 // API route
-app.post("/generate", async (req, res) => {
+app.post("/generate", upload.single("resume"), async (req, res) => {
   try {
     const { name, role, company, skills, email, phone, city, hiringManager } = req.body;
     const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     const managerName = hiringManager || "Hiring Manager";
+    let resumeText = "";
+    if (req.file) {
+      resumeText = await parseResume(req.file.buffer);
+    }
+
+    // Verify data reception
+    console.log("Request Body:", req.body);
 
     const prompt = `
-Write a professional cover letter for ${name} applying for the role of ${role} at ${company}.
-Skills: ${skills}.
+Write a professional cover letter for the candidate below.
 
-IMPORTANT FORMATTING RULES:
-1.  The output must start with this EXACT header format:
-    ${name}
-    ${phone} | ${email}
-    ${city}
+Candidate Name: {name}
+Job Role: {role}
+Company Name: {company}
+Key Skills: {skills}
 
-    ${date}
+Guidelines:
+- Use a professional and confident tone
+- Write 3 short paragraphs
+- Mention relevant skills naturally
+- Do NOT exaggerate experience
+- Do NOT use bullet points
+- Keep the letter concise and well structured
+- End with a polite closing
 
-    ${managerName}
-    ${role}
-    ${company}
+The output should look like a real cover letter, not AI-generated text.
 
-2.  After the header, write "Dear ${managerName},"
-3.  Write 3 concise paragraphs highlighting my skills and fit for the role.
-4.  End with "Sincerely,\n${name}".
-5.  Do NOT include any placeholders like [Your Address]. Use the real data provided.
 `;
+
+    console.log("Generated Prompt:", prompt);
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
